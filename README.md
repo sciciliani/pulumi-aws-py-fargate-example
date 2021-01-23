@@ -4,34 +4,21 @@
 
 * [Install Pulumi](https://www.pulumi.com/docs/get-started/install/)
 * [Configure Pulumi to Use AWS](https://www.pulumi.com/docs/intro/cloud-providers/aws/setup/) (if your AWS CLI is configured, no further changes are required)
+* Clone repo and run the following commands
+
+    ```bash
+    git clone https://github.com/sciciliani/pulumi-aws-py-fargate-example
+    cd pulumi-aws-py-fargate-example
+    pulumi stack init dev
+    pulumi config set aws:region us-east-1 # any valid AWS region will work
+    python3 -m venv venv
+    source venv/bin/activate
+    pip3 install -r requirements.txt
+    ```
 
 ## Running the Example
 
-1. Create a new stack, which is an isolated deployment target for this example:
-
-    ```bash
-    $ pulumi stack init dev
-    ```
-
-2. Set your desired AWS region:
-
-    ```bash
-    $ pulumi config set aws:region us-east-1 # any valid AWS region will work
-    ```
-
-3. Create a Python virtualenv, activate it, and install dependencies:
-
-    This installs the dependent packages [needed](https://www.pulumi.com/docs/intro/concepts/how-pulumi-works/) for our Pulumi program.
-
-    ```bash
-    $ python3 -m venv venv
-    $ source venv/bin/activate
-    $ pip3 install -r requirements.txt
-    ```
-
-4. Deploy everything with a single `pulumi up` command. This will show you a preview of changes first, which
-   includes all of the required AWS resources (clusters, services, and the like). Don't worry if it's more than
-   you expected -- this is one of the benefits of Pulumi, it configures everything so that so you don't need to!
+1. Deploy everything with a single `pulumi up` command. 
 
     ```bash
     $ pulumi up
@@ -42,13 +29,27 @@
     ```bash
     Updating (dev):
          Type                             Name                Status
-     +   pulumi:pulumi:Stack              aws-py-fargate-dev  created
-
+     +   pulumi:pulumi:Stack              aws-py-fargate-dev  created     
+     +   ├─ aws:iam:Role                  task-exec-role      created     
+     +   ├─ aws:ec2:Vpc                   main                created     
+     +   ├─ aws:ecs:Cluster               cluster             created     
+     +   ├─ aws:ecs:TaskDefinition        app-task            created     
+     +   ├─ aws:iam:RolePolicyAttachment  task-exec-policy    created     
+     +   ├─ aws:ec2:InternetGateway       ig-main             created     
+     +   ├─ aws:ec2:Subnet                subnet-a            created     
+     +   ├─ aws:ec2:Subnet                subnet-b            created     
+     +   ├─ aws:ec2:SecurityGroup         public-web          created     
+     +   ├─ aws:lb:TargetGroup            app-tg              created     
+     +   ├─ aws:ec2:Route                 inet-route          created     
+     +   ├─ aws:lb:LoadBalancer           app-lb              created     
+     +   ├─ aws:lb:Listener               web                 created     
+     +   └─ aws:ecs:Service               app-svc             created     
+ 
     Outputs:
         url: "app-lb-ad43707-1433933240.us-west-2.elb.amazonaws.com"
 
     Resources:
-        + 10 created
+        + 15 created
 
     Duration: 2m56s
 
@@ -56,38 +57,9 @@
 
    Notice that the automatically assigned load-balancer URL is printed as a stack output.
 
-5. At this point, your app is running -- let's curl it. The CLI makes it easy to grab the URL:
-
-    ```bash
-    $ curl http://$(pulumi stack output url)
-    <!DOCTYPE html>
-    <html>
-    <head>
-    <title>Welcome to nginx!</title>
-    <style>
-        body {
-            width: 35em;
-            margin: 0 auto;
-            font-family: Tahoma, Verdana, Arial, sans-serif;
-        }
-    </style>
-    </head>
-    <body>
-    <h1>Welcome to nginx!</h1>
-    <p>If you see this page, the nginx web server is successfully installed and
-    working. Further configuration is required.</p>
-
-    <p>For online documentation and support please refer to
-    <a href="http://nginx.org/">nginx.org</a>.<br/>
-    Commercial support is available at
-    <a href="http://nginx.com/">nginx.com</a>.</p>
-
-    <p><em>Thank you for using nginx.</em></p>
-    </body>
-    </html>
-    ```
+2. Open a browser to the output url. In example: `app-lb-ad43707-1433933240.us-west-2.elb.amazonaws.com`
    
-7. Once you are done, you can destroy all of the resources, and the stack:
+3. Once you are done, you can destroy all of the resources, and the stack:
 
     ```bash
     $ pulumi destroy
